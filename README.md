@@ -76,7 +76,7 @@ public class BaseCommand
   public void DoSomething() =>
     _bus.Publish(this);
 }
-``
+```
 
 And another one:
 
