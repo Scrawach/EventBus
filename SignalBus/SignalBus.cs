@@ -41,7 +41,7 @@ namespace SignalBus
                 var castedSignal = (TListener) (signal as object); 
                 
                 foreach (var listener in _listeners) 
-                    listener.Listen(castedSignal);
+                    listener.OnListen(castedSignal);
             }
 
             public void Subscribe<TSignal>(ISignalListener<TSignal> listener) =>
