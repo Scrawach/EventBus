@@ -1,50 +1,50 @@
-# SignalBus
-Simple signal bus implementation.
+# EventBus
+Simple event bus implementation.
 
 ## Samples
 ### Basic
 Subscribe another service:
 
 ```csharp
-ISignalBus bus; // injected
+IEventBus bus; // injected
 
 AnotherService service = new AnotherService();
 bus.Subscribe(service);
 ```
 
-Someone publish the signal:
+Someone publish the event:
 
 ```csharp
-ISignalBus bus; // injected 
+IEventBus bus; // injected 
 
-bus.Publish(new Signal());
+bus.Publish(new EventA());
 ```
 
-Another service handles the signal:
+Another service handles the event:
 
 ```csharp
-public class AnotherService : ISignalListener<Signal>
+public class AnotherService : IEventListener<EventA>
 {
-  public void OnListen(Signal signal)
+  public void OnListen(EventA args)
   {
     // do some magic
   }
 }
 ```
 
-### Multiple Signals
+### Multiple Events
 
-Service can handles multiple signals:
+Service can handles multiple events:
 
 ```csharp
-public class SampleService : ISignalListener<Signal1>, ISignalListener<Signal2>
+public class SampleService : IEventListener<EventA>, IEventListener<EventB>
 {
-  public void OnListen(Signal1 signal)
+  public void OnListen(EventA args)
   {
     // do some magic 1
   }
   
-  public void OnListen(Signal2 signal)
+  public void OnListen(EventB args)
   {
     // do some magic 2
   }
@@ -54,23 +54,23 @@ public class SampleService : ISignalListener<Signal1>, ISignalListener<Signal2>
 In this case need subscribe every listener:
 
 ```csharp
-ISignalBus bus; // injected
+IEventBus bus; // injected
 
 SampleService service = new SampleService();
-bus.Subscribe<Signal1>(service);
-bus.Subscribe<Signal2>(service);
+bus.Subscribe<EventA>(service);
+bus.Subscribe<EventB>(service);
 ```
 
-### Hierarchical Signals
+### Hierarchical Events
 
-In example, simple Command signal:
+In example, simple Command event:
 
 ```csharp
 public class BaseCommand
 {
-  private readonly ISignalBus _bus;
+  private readonly IEventBus _bus;
   
-  public BaseCommand(ISignalBus bus) =>
+  public BaseCommand(IEventBus bus) =>
     _bus = bus;
     
   public void DoSomething() =>
@@ -83,14 +83,14 @@ And another one:
 ```csharp
 public class AnotherCommand : BaseCommand
 {
-  public AnotherCommand(ISignalBus bus) : base(bus) { }
+  public AnotherCommand(IEventBus bus) : base(bus) { }
 }
 ```
 
 Handlers can handle `AnotherCommand`:
 
 ```csharp
-public class Handler : ISignalListener<AnotherCommand>
+public class Handler : IEventListener<AnotherCommand>
 {
   public void OnListen(AnotherCommand command)
   {
@@ -100,7 +100,7 @@ public class Handler : ISignalListener<AnotherCommand>
 ```
 
 ```csharp
-ISignalBus bus; // injected
+IEventBus bus; // injected
 
 AnotherCommand command = new AnotherCommand(bus);
 Handler handler = new Handler();
