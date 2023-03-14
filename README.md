@@ -60,3 +60,51 @@ SampleService service = new SampleService();
 bus.Subscribe<Signal1>(service);
 bus.Subscribe<Signal2>(service);
 ```
+
+### Hierarchical Signals
+
+In example, simple Command signal:
+
+```csharp
+public class BaseCommand
+{
+  private readonly ISignalBus _bus;
+  
+  public BaseCommand(ISignalBus bus) =>
+    _bus = bus;
+    
+  public void DoSomething() =>
+    _bus.Publish(this);
+}
+```
+
+And another one:
+
+```csharp
+public class AnotherCommand : BaseCommand
+{
+  public AnotherCommand(ISignalBus bus) : base(bus) { }
+}
+```
+
+Handlers can handle `AnotherCommand`:
+
+```csharp
+public class Handler : ISignalListener<AnotherCommand>
+{
+  public void OnListen(AnotherCommand command)
+  {
+    Console.WriteLine($"{nameof(Handler)} Listen {command}");
+  }
+}
+```
+
+```csharp
+ISignalBus bus; // injected
+
+AnotherCommand command = new AnotherCommand(bus);
+Handler handler = new Handler();
+
+bus.Subscribe(handler);
+command.DoSomething(); // output: Handler Listen AnotherCommand
+```
