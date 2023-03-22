@@ -1,4 +1,5 @@
 using System.IO;
+using EventBus.Abstract;
 
 namespace EventBus
 {

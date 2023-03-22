@@ -1,4 +1,4 @@
-namespace EventBus
+namespace EventBus.Abstract
 {
     public interface IEventPublisher
     {
