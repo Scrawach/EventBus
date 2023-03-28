@@ -49,7 +49,7 @@ namespace EventBus
                 _listeners.Add(listener);
 
             public void Unsubscribe(IEventListener<TListener> listener) =>
-                _listeners.Add(listener);
+                _listeners.Remove(listener);
         }
     }
 }
