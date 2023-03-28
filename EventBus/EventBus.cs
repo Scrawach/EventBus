@@ -6,10 +6,10 @@ namespace EventBus
 {
     public class EventBus : IEventBus
     {
-        private readonly IDictionary<Type, IListenerContainer> _containers;
+        private readonly IDictionary<Type, IEventBus> _containers;
 
         public EventBus() =>
-            _containers = new Dictionary<Type, IListenerContainer>();
+            _containers = new Dictionary<Type, IEventBus>();
 
         public void Publish<TEvent>(TEvent args) =>
             Container<TEvent>(args.GetType()).Publish(args);
@@ -20,36 +20,35 @@ namespace EventBus
         public void Unsubscribe<TEvent>(IEventListener<TEvent> listener) =>
             Container<TEvent>().Unsubscribe(listener);
         
-        private ListenerContainer<TEvent> Container<TEvent>() =>
+        private IEventBus Container<TEvent>() =>
             Container<TEvent>(typeof(TEvent));
 
-        private ListenerContainer<TEvent> Container<TEvent>(Type type)
+        private IEventBus Container<TEvent>(Type type)
         {
             if (!_containers.TryGetValue(type, out var container))
                 _containers.Add(type, container = new ListenerContainer<TEvent>());
-            return container as ListenerContainer<TEvent>;
+            return container;
         }
         
-        private interface IListenerContainer { }
-        
-        private class ListenerContainer<TListener> : IListenerContainer
+        private class ListenerContainer<TListener> : IEventBus
         {
             private readonly ICollection<IEventListener<TListener>> _listeners;
 
             public ListenerContainer() =>
                 _listeners = new HashSet<IEventListener<TListener>>();
 
-            public void Publish(TListener args)
+            public void Publish<TEvent>(TEvent args)
             {
+                var castedSignal = (TListener) (args as object);
                 foreach (var listener in _listeners) 
-                    listener.OnListen(args);
+                    listener.OnListen(castedSignal);
             }
 
-            public void Subscribe(IEventListener<TListener> listener) =>
-                _listeners.Add(listener);
+            public void Subscribe<TEvent>(IEventListener<TEvent> listener) =>
+                _listeners.Add((IEventListener<TListener>) listener);
 
-            public void Unsubscribe(IEventListener<TListener> listener) =>
-                _listeners.Remove(listener);
+            public void Unsubscribe<TEvent>(IEventListener<TEvent> listener) =>
+                _listeners.Remove((IEventListener<TListener>) listener);
         }
     }
 }
